@@ -1,4 +1,5 @@
 pub mod board;
+pub mod piece_set_generator;
 
 mod corner;
 mod l;
