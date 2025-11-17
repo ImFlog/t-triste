@@ -28,21 +28,52 @@ impl PieceBuilder {
 
 #[cfg(test)]
 mod tests {
+    use bevy::ecs::world::CommandQueue;
+
     use super::*;
     use crate::piece::{
-        board::Board, corner::Corner, l::L, piece::Piece, square::Square, z::Z, SQUARE_WIDTH,
+        board::Board, corner::Corner, l::L, piece::Piece, piece::Position, square::Square, z::Z,
+        SQUARE_WIDTH,
     };
 
     #[test]
     fn test_build_l_piece() {
-        // Given / When
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
+
+        // When
         // *
         // *
         // * *
         let piece = L::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
+
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
         // Then
-        let results = piece.positions();
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
+
         assert_eq!(
             results,
             vec![
@@ -56,13 +87,41 @@ mod tests {
 
     #[test]
     fn test_build_z_piece() {
-        // Given / When
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
+
+        // When
         // * *
         //   * *
         let piece = Z::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
+
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
         // Then
-        let results = piece.positions();
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
+
         assert_eq!(
             results,
             vec![
@@ -76,13 +135,40 @@ mod tests {
 
     #[test]
     fn test_build_corner_piece() {
-        // Given / When
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
+
+        // When
         // *
         // * *
         let piece = Corner::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
+
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
         // Then
-        let results = piece.positions();
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
         assert_eq!(
             results,
             vec![
@@ -95,25 +181,59 @@ mod tests {
 
     #[test]
     fn test_build_dot_square_piece() {
-        // Given / When
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
+
+        // When
         // *
         let piece = Square::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
+
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
         // Then
-        let results = piece.positions();
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
         assert_eq!(results, vec![Vec3::new(0., 0., 1.),]);
     }
 
     #[test]
     fn test_board_positions() {
         // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
+
         let start_x = 100;
         let start_y = 50;
 
         // When
         let board = Board::new_for_tests(start_x, start_y);
+        commands.insert_resource(board);
+        command_queue.apply(&mut world);
 
         // Then - Check that board has correct bounds
+        let board = world.get_resource::<Board>().unwrap();
         assert_eq!(board.min_x, start_x as f32);
         assert_eq!(board.min_y, start_y as f32);
         // Board is 3 rows x 5 cols, so max values should account for that
