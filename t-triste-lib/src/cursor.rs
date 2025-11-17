@@ -5,13 +5,12 @@ pub struct CursorPlugin;
 
 impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(Cursor {
-                current_pos: Vec2::default(),
-                last_click_pos: Vec2::default(),
-                is_pressed: false
-            })
-            .add_systems(PreUpdate, cursor_state);
+        app.insert_resource(Cursor {
+            current_pos: Vec2::default(),
+            last_click_pos: Vec2::default(),
+            is_pressed: false,
+        })
+        .add_systems(PreUpdate, cursor_state);
     }
 }
 
@@ -23,7 +22,7 @@ pub struct Cursor {
     /// The position where the left mouse button was last pressed
     pub last_click_pos: Vec2,
     /// Whether the left mouse button is currently pressed
-    pub is_pressed: bool
+    pub is_pressed: bool,
 }
 
 fn cursor_state(

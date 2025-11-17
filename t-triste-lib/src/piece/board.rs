@@ -65,27 +65,20 @@ impl Board {
 }
 
 // Systems
-fn draw_board(
-    board: Res<Board>,
-    mut commands: Commands,
-) {
+fn draw_board(board: Res<Board>, mut commands: Commands) {
     let color = Color::srgb(0.60, 0.40, 0.);
-    board
-        .positions
-        .iter()
-        .for_each(|position| {
-            commands
-                .spawn((
-                    Sprite {
-                        color,
-                        custom_size: Some(Vec2::new(
-                            (SQUARE_WIDTH - 1) as f32,
-                            (SQUARE_WIDTH - 1) as f32,
-                        )),
-                        ..default()
-                    },
-                    Transform::from_translation(*position),
-                    BoardPosition,
-                ));
-        });
+    board.positions.iter().for_each(|position| {
+        commands.spawn((
+            Sprite {
+                color,
+                custom_size: Some(Vec2::new(
+                    (SQUARE_WIDTH - 1) as f32,
+                    (SQUARE_WIDTH - 1) as f32,
+                )),
+                ..default()
+            },
+            Transform::from_translation(*position),
+            BoardPosition,
+        ));
+    });
 }

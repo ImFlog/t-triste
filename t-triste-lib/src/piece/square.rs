@@ -1,5 +1,5 @@
-use std::vec;
 use bevy::{math::vec3, prelude::*};
+use std::vec;
 use t_triste_macro::PieceBehavior;
 
 #[derive(PieceBehavior)]
