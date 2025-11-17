@@ -1,8 +1,6 @@
-name: CI
+name: Main Branch CI
 
 on:
-  pull_request:
-    branches: ["**"]
   push:
     branches: [main, master]
 
@@ -90,8 +88,6 @@ jobs:
   build:
     name: Build Production Artifact
     runs-on: ubuntu-latest
-    # Only run on main/master branch
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     needs: [lint, test]
     steps:
       - uses: actions/checkout@v4
@@ -126,9 +122,9 @@ jobs:
       - name: Build release
         run: cargo build --release --all-features
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: t-triste-release
-          path: target/release/t-triste
-          if-no-files-found: error
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: t-triste-release
+      #     path: target/release/t-triste
+      #     if-no-files-found: error
