@@ -5,12 +5,21 @@ authors = [
     "ImFlog <garcia.florian.perso@gmail.com>",
     "NugetChar <nugetchar@gmail.com>"
 ]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 t-triste-macro = { version = "*", path = "../t-triste-macro" }
 
 [dependencies.bevy]
-git = "https://github.com/bevyengine/bevy"
-rev = "97d8e4e1793ede3df8c77ed44736e800b38ff7a4"
-features = ["render"]
+version = "0.17"
+default-features = false
+features = [
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_winit",
+    "x11",
+    "bevy_asset",
+    "bevy_scene",
+    "bevy_core_pipeline",
+    "png"
+]

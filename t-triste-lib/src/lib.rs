@@ -2,46 +2,43 @@ mod cursor;
 mod piece;
 
 use bevy::prelude::*;
-use bevy::render::camera::WindowOrigin;
+use bevy::window::{Window, WindowPlugin};
 use piece::{GameState, SQUARE_WIDTH, board::{self, Board}};
 
 // Plugin
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.insert_resource(WindowDescriptor {
-            title: "T-Triste".to_string(),
-            width: 800.,
-            height: 600.,
-            vsync: true,
-            ..Default::default()
-        })
-        .insert_resource(ClearColor(Color::rgb(1., 0.90, 1.)))
-        .add_plugins(DefaultPlugins)
-        .add_startup_system(setup_camera.system())
-        .add_plugin(cursor::CursorPlugin)
-        .add_plugin(board::BoardPlugin)
-        .add_plugin(piece::PiecePlugin)
-        .add_system(incrust_in_board.system());
+    fn build(&self, app: &mut App) {
+        app.insert_resource(ClearColor(Color::srgb(1., 0.90, 1.)))
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "T-Triste".to_string(),
+                resolution: (800, 600).into(),
+                present_mode: bevy::window::PresentMode::AutoVsync,
+                ..default()
+            }),
+            ..default()
+        }))
+        .add_systems(Startup, setup_camera)
+        .add_plugins(cursor::CursorPlugin)
+        .add_plugins(board::BoardPlugin)
+        .add_plugins(piece::PiecePlugin)
+        .add_systems(Update, incrust_in_board);
     }
 }
 
 // System
 fn setup_camera(mut commands: Commands) {
-    commands.spawn_bundle({
-        let mut camera = OrthographicCameraBundle::new_2d();
-        camera.orthographic_projection.window_origin = WindowOrigin::BottomLeft;
-        camera
-    });
+    commands.spawn(Camera2d);
 }
 
 fn incrust_in_board(
     mut game_state: NonSendMut<GameState>,
     board: Option<Res<Board>>,
-    mouse_button_input: Res<Input<MouseButton>>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
 ) {
-    if !mouse_button_input.just_released(MouseButton::Left) || 
+    if !mouse_button_input.just_released(MouseButton::Left) ||
     board.is_none() {
         return;
     }

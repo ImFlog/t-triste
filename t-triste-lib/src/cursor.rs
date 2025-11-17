@@ -3,17 +3,18 @@ use bevy::prelude::*;
 pub struct CursorPlugin;
 
 impl Plugin for CursorPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app
             .insert_resource(Cursor {
                 current_pos: Vec2::default(),
                 last_click_pos: Vec2::default(),
                 is_pressed: false
             })
-            .add_system_to_stage(CoreStage::PreUpdate, cursor_state.system());
+            .add_systems(PreUpdate, cursor_state);
     }
 }
 
+#[derive(Resource)]
 pub struct Cursor {
     pub current_pos: Vec2,
     pub last_click_pos: Vec2,
@@ -21,11 +22,11 @@ pub struct Cursor {
 }
 
 fn cursor_state(
-    mut cursor_moved_event: EventReader<CursorMoved>,
-    mouse_button_input: Res<Input<MouseButton>>,
+    mut cursor_moved_event: MessageReader<CursorMoved>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut cursor: ResMut<Cursor>,
 ) {
-    for event in cursor_moved_event.iter() {
+    for event in cursor_moved_event.read() {
         cursor.current_pos = event.position;
 
         if mouse_button_input.just_pressed(MouseButton::Left) {

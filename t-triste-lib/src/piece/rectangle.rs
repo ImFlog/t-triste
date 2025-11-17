@@ -25,7 +25,7 @@ impl Rectangle {
         }
         Rectangle {
             positions,
-            color: Color::rgb(0.68, 0.1, 1.03),
+            color: Color::srgb(0.68, 0.1, 1.03),
             moving: false,
         }
     }

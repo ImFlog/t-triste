@@ -34,7 +34,7 @@ impl L {
         }
         L {
             positions,
-            color: Color::rgb(1.56, 0.12, 0.03),
+            color: Color::srgb(1.56, 0.12, 0.03),
             moving: false,
         }
     }
