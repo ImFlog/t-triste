@@ -3,7 +3,10 @@ mod piece;
 
 use bevy::prelude::*;
 use bevy::window::{Window, WindowPlugin};
-use piece::{GameState, SQUARE_WIDTH, board::{self, Board}};
+use piece::{
+    board::{self, Board},
+    GameState, SQUARE_WIDTH,
+};
 
 // Plugin
 pub struct GamePlugin;
@@ -38,8 +41,7 @@ fn incrust_in_board(
     board: Option<Res<Board>>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
 ) {
-    if !mouse_button_input.just_released(MouseButton::Left) ||
-    board.is_none() {
+    if !mouse_button_input.just_released(MouseButton::Left) || board.is_none() {
         return;
     }
 

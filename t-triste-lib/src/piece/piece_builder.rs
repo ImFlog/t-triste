@@ -88,120 +88,120 @@ impl PieceBuilder {
 //         assert_eq!(board.max_y, (start_y + SQUARE_WIDTH * (nb_row - 1)) as f32);
 //     }
 
-    // #[test]
-    // fn test_build_l_piece() {
-    //     // Given
-    //     let mut world = World::default();
-    //     let mut command_queue = CommandQueue::default();
-    //     let mut commands = Commands::new(&mut command_queue, &world);
-    //     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+// #[test]
+// fn test_build_l_piece() {
+//     // Given
+//     let mut world = World::default();
+//     let mut command_queue = CommandQueue::default();
+//     let mut commands = Commands::new(&mut command_queue, &world);
+//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
 
-    //     // When
-    //     // *
-    //     // *
-    //     // * *
-    //     PieceBuilder::new_l_piece(&mut commands, materials, 0, 0);
-    //     command_queue.apply(&mut world);
+//     // When
+//     // *
+//     // *
+//     // * *
+//     PieceBuilder::new_l_piece(&mut commands, materials, 0, 0);
+//     command_queue.apply(&mut world);
 
-    //     // Then
-    //     let results = world
-    //         .query_filtered::<&Transform, With<Position>>()
-    //         .iter(&world)
-    //         .map(|t| t.translation)
-    //         .collect::<Vec<_>>();
+//     // Then
+//     let results = world
+//         .query_filtered::<&Transform, With<Position>>()
+//         .iter(&world)
+//         .map(|t| t.translation)
+//         .collect::<Vec<_>>();
 
-    //     assert_eq!(
-    //         results,
-    //         vec![
-    //             Vec3::new(0., 0., 1.),
-    //             Vec3::new(0., SQUARE_WIDTH as f32, 1.),
-    //             Vec3::new(0., 2. * (SQUARE_WIDTH as f32), 1.),
-    //             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
-    //         ]
-    //     );
-    // }
+//     assert_eq!(
+//         results,
+//         vec![
+//             Vec3::new(0., 0., 1.),
+//             Vec3::new(0., SQUARE_WIDTH as f32, 1.),
+//             Vec3::new(0., 2. * (SQUARE_WIDTH as f32), 1.),
+//             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
+//         ]
+//     );
+// }
 
-    // #[test]
-    // fn test_build_z_piece() {
-    //     // Given
-    //     let mut world = World::default();
-    //     let mut command_queue = CommandQueue::default();
-    //     let mut commands = Commands::new(&mut command_queue, &world);
-    //     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+// #[test]
+// fn test_build_z_piece() {
+//     // Given
+//     let mut world = World::default();
+//     let mut command_queue = CommandQueue::default();
+//     let mut commands = Commands::new(&mut command_queue, &world);
+//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
 
-    //     // When
-    //     // * *
-    //     //   * *
-    //     PieceBuilder::new_z_piece(&mut commands, materials, 0, 0);
-    //     command_queue.apply(&mut world);
+//     // When
+//     // * *
+//     //   * *
+//     PieceBuilder::new_z_piece(&mut commands, materials, 0, 0);
+//     command_queue.apply(&mut world);
 
-    //     // Then
-    //     let results = world
-    //         .query_filtered::<&Transform, With<Position>>()
-    //         .iter(&world)
-    //         .map(|t| t.translation)
-    //         .collect::<Vec<_>>();
+//     // Then
+//     let results = world
+//         .query_filtered::<&Transform, With<Position>>()
+//         .iter(&world)
+//         .map(|t| t.translation)
+//         .collect::<Vec<_>>();
 
-    //     assert_eq!(
-    //         results,
-    //         vec![
-    //             Vec3::new(0.0, SQUARE_WIDTH as f32, 1.0),
-    //             Vec3::new(SQUARE_WIDTH as f32, SQUARE_WIDTH as f32, 1.),
-    //             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
-    //             Vec3::new(2. * SQUARE_WIDTH as f32, 0., 1.)
-    //         ]
-    //     );
-    // }
+//     assert_eq!(
+//         results,
+//         vec![
+//             Vec3::new(0.0, SQUARE_WIDTH as f32, 1.0),
+//             Vec3::new(SQUARE_WIDTH as f32, SQUARE_WIDTH as f32, 1.),
+//             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
+//             Vec3::new(2. * SQUARE_WIDTH as f32, 0., 1.)
+//         ]
+//     );
+// }
 
-    // #[test]
-    // fn test_build_corner_piece() {
-    //     // Given
-    //     let mut world = World::default();
-    //     let mut command_queue = CommandQueue::default();
-    //     let mut commands = Commands::new(&mut command_queue, &world);
-    //     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+// #[test]
+// fn test_build_corner_piece() {
+//     // Given
+//     let mut world = World::default();
+//     let mut command_queue = CommandQueue::default();
+//     let mut commands = Commands::new(&mut command_queue, &world);
+//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
 
-    //     // When
-    //     // *
-    //     // * *
-    //     PieceBuilder::new_corner_piece(&mut commands, materials, 0, 0);
-    //     command_queue.apply(&mut world);
+//     // When
+//     // *
+//     // * *
+//     PieceBuilder::new_corner_piece(&mut commands, materials, 0, 0);
+//     command_queue.apply(&mut world);
 
-    //     // Then
-    //     let results = world
-    //         .query_filtered::<&Transform, With<Position>>()
-    //         .iter(&world)
-    //         .map(|t| t.translation)
-    //         .collect::<Vec<_>>();
-    //     assert_eq!(
-    //         results,
-    //         vec![
-    //             Vec3::new(0., 0., 1.),
-    //             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
-    //             Vec3::new(0., SQUARE_WIDTH as f32, 1.),
-    //         ]
-    //     );
-    // }
+//     // Then
+//     let results = world
+//         .query_filtered::<&Transform, With<Position>>()
+//         .iter(&world)
+//         .map(|t| t.translation)
+//         .collect::<Vec<_>>();
+//     assert_eq!(
+//         results,
+//         vec![
+//             Vec3::new(0., 0., 1.),
+//             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
+//             Vec3::new(0., SQUARE_WIDTH as f32, 1.),
+//         ]
+//     );
+// }
 
-    // #[test]
-    // fn test_build_dot_square_piece() {
-    //     // Given
-    //     let mut world = World::default();
-    //     let mut command_queue = CommandQueue::default();
-    //     let mut commands = Commands::new(&mut command_queue, &world);
-    //     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+// #[test]
+// fn test_build_dot_square_piece() {
+//     // Given
+//     let mut world = World::default();
+//     let mut command_queue = CommandQueue::default();
+//     let mut commands = Commands::new(&mut command_queue, &world);
+//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
 
-    //     // When
-    //     // *
-    //     PieceBuilder::new_dot_square_piece(&mut commands, materials, 0, 0);
-    //     command_queue.apply(&mut world);
+//     // When
+//     // *
+//     PieceBuilder::new_dot_square_piece(&mut commands, materials, 0, 0);
+//     command_queue.apply(&mut world);
 
-    //     // Then
-    //     let results = world
-    //         .query_filtered::<&Transform, With<Position>>()
-    //         .iter(&world)
-    //         .map(|t| t.translation)
-    //         .collect::<Vec<_>>();
-    //     assert_eq!(results, vec![Vec3::new(0., 0., 1.),]);
-    // }
+//     // Then
+//     let results = world
+//         .query_filtered::<&Transform, With<Position>>()
+//         .iter(&world)
+//         .map(|t| t.translation)
+//         .collect::<Vec<_>>();
+//     assert_eq!(results, vec![Vec3::new(0., 0., 1.),]);
+// }
 // }

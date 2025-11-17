@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use t_triste_macro::PieceBehavior;
 
-use crate::piece::{SQUARE_WIDTH, piece_builder::{PieceBuilder}};
-
+use crate::piece::{piece_builder::PieceBuilder, SQUARE_WIDTH};
 
 #[derive(PieceBehavior)]
 pub struct Rectangle {
