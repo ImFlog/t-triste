@@ -26,183 +26,222 @@ impl PieceBuilder {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use bevy::asset::HandleId;
-//     use bevy::ecs::system::CommandQueue;
+#[cfg(test)]
+mod tests {
+    use bevy::ecs::world::CommandQueue;
 
-//     use super::*;
+    use super::*;
+    use crate::piece::{
+        board::Board, corner::Corner, l::L, piece::Piece, piece::Position, square::Square, z::Z,
+        SQUARE_WIDTH,
+    };
 
-//     #[test]
-//     fn test_build_board() {
-//         // Given
-//         let mut world = World::default();
-//         let mut command_queue = CommandQueue::default();
-//         let mut commands = Commands::new(&mut command_queue, &world);
-//         let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+    #[test]
+    fn test_build_l_piece() {
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
 
-//         // When
-//         // *
-//         // *
-//         PieceBuilder::new_board(&mut commands, materials, 0, 0, 1, 2);
-//         command_queue.apply(&mut world);
+        // When
+        // *
+        // *
+        // * *
+        let piece = L::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
 
-//         // Then
-//         let results = world
-//             .query_filtered::<&Transform, With<Position>>()
-//             .iter(&world)
-//             .map(|t| t.translation)
-//             .collect::<Vec<_>>();
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
-//         assert_eq!(
-//             results,
-//             vec![
-//                 Vec3::new(0., 0., 0.),
-//                 Vec3::new(0., SQUARE_WIDTH as f32, 0.)
-//             ]
-//         );
-//     }
+        // Then
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
 
-//     #[test]
-//     fn test_min_max_position_build_board() {
-//         // Given
-//         let mut world = World::default();
-//         let mut command_queue = CommandQueue::default();
-//         let mut commands = Commands::new(&mut command_queue, &world);
-//         let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+        assert_eq!(
+            results,
+            vec![
+                Vec3::new(0., 0., 1.),
+                Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
+                Vec3::new(0., SQUARE_WIDTH as f32, 1.),
+                Vec3::new(0., 2. * (SQUARE_WIDTH as f32), 1.),
+            ]
+        );
+    }
 
-//         let nb_col = 3;
-//         let nb_row = 4;
-//         let start_x = 100;
-//         let start_y = 50;
+    #[test]
+    fn test_build_z_piece() {
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
 
-//         // When
-//         PieceBuilder::new_board(&mut commands, materials, start_x, start_y, nb_col, nb_row);
-//         command_queue.apply(&mut world);
+        // When
+        // * *
+        //   * *
+        let piece = Z::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
 
-//         // Then
-//         let board = world.query::<&Board>().iter(&world).next().unwrap();
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
-//         assert_eq!(board.min_x, start_x as f32);
-//         assert_eq!(board.max_x, (start_x + SQUARE_WIDTH * (nb_col - 1)) as f32);
-//         assert_eq!(board.min_y, start_y as f32);
-//         assert_eq!(board.max_y, (start_y + SQUARE_WIDTH * (nb_row - 1)) as f32);
-//     }
+        // Then
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
 
-// #[test]
-// fn test_build_l_piece() {
-//     // Given
-//     let mut world = World::default();
-//     let mut command_queue = CommandQueue::default();
-//     let mut commands = Commands::new(&mut command_queue, &world);
-//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+        assert_eq!(
+            results,
+            vec![
+                Vec3::new(0., 0., 1.),
+                Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
+                Vec3::new(SQUARE_WIDTH as f32, SQUARE_WIDTH as f32, 1.),
+                Vec3::new(2. * SQUARE_WIDTH as f32, SQUARE_WIDTH as f32, 1.)
+            ]
+        );
+    }
 
-//     // When
-//     // *
-//     // *
-//     // * *
-//     PieceBuilder::new_l_piece(&mut commands, materials, 0, 0);
-//     command_queue.apply(&mut world);
+    #[test]
+    fn test_build_corner_piece() {
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
 
-//     // Then
-//     let results = world
-//         .query_filtered::<&Transform, With<Position>>()
-//         .iter(&world)
-//         .map(|t| t.translation)
-//         .collect::<Vec<_>>();
+        // When
+        // *
+        // * *
+        let piece = Corner::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
 
-//     assert_eq!(
-//         results,
-//         vec![
-//             Vec3::new(0., 0., 1.),
-//             Vec3::new(0., SQUARE_WIDTH as f32, 1.),
-//             Vec3::new(0., 2. * (SQUARE_WIDTH as f32), 1.),
-//             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
-//         ]
-//     );
-// }
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
-// #[test]
-// fn test_build_z_piece() {
-//     // Given
-//     let mut world = World::default();
-//     let mut command_queue = CommandQueue::default();
-//     let mut commands = Commands::new(&mut command_queue, &world);
-//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+        // Then
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
+        assert_eq!(
+            results,
+            vec![
+                Vec3::new(0., 0., 1.),
+                Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
+                Vec3::new(0., SQUARE_WIDTH as f32, 1.),
+            ]
+        );
+    }
 
-//     // When
-//     // * *
-//     //   * *
-//     PieceBuilder::new_z_piece(&mut commands, materials, 0, 0);
-//     command_queue.apply(&mut world);
+    #[test]
+    fn test_build_dot_square_piece() {
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
 
-//     // Then
-//     let results = world
-//         .query_filtered::<&Transform, With<Position>>()
-//         .iter(&world)
-//         .map(|t| t.translation)
-//         .collect::<Vec<_>>();
+        // When
+        // *
+        let piece = Square::new(0, 0);
+        let positions = piece.positions();
+        let color = piece.color();
 
-//     assert_eq!(
-//         results,
-//         vec![
-//             Vec3::new(0.0, SQUARE_WIDTH as f32, 1.0),
-//             Vec3::new(SQUARE_WIDTH as f32, SQUARE_WIDTH as f32, 1.),
-//             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
-//             Vec3::new(2. * SQUARE_WIDTH as f32, 0., 1.)
-//         ]
-//     );
-// }
+        for position in positions.iter() {
+            commands.spawn((
+                bevy::sprite::Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
+                    )),
+                    ..default()
+                },
+                Transform::from_translation(*position),
+                Position,
+            ));
+        }
+        command_queue.apply(&mut world);
 
-// #[test]
-// fn test_build_corner_piece() {
-//     // Given
-//     let mut world = World::default();
-//     let mut command_queue = CommandQueue::default();
-//     let mut commands = Commands::new(&mut command_queue, &world);
-//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+        // Then
+        let results = world
+            .query_filtered::<&Transform, With<Position>>()
+            .iter(&world)
+            .map(|t| t.translation)
+            .collect::<Vec<_>>();
+        assert_eq!(results, vec![Vec3::new(0., 0., 1.),]);
+    }
 
-//     // When
-//     // *
-//     // * *
-//     PieceBuilder::new_corner_piece(&mut commands, materials, 0, 0);
-//     command_queue.apply(&mut world);
+    #[test]
+    fn test_board_positions() {
+        // Given
+        let mut world = World::default();
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, &world);
 
-//     // Then
-//     let results = world
-//         .query_filtered::<&Transform, With<Position>>()
-//         .iter(&world)
-//         .map(|t| t.translation)
-//         .collect::<Vec<_>>();
-//     assert_eq!(
-//         results,
-//         vec![
-//             Vec3::new(0., 0., 1.),
-//             Vec3::new(SQUARE_WIDTH as f32, 0., 1.),
-//             Vec3::new(0., SQUARE_WIDTH as f32, 1.),
-//         ]
-//     );
-// }
+        let start_x = 100;
+        let start_y = 50;
 
-// #[test]
-// fn test_build_dot_square_piece() {
-//     // Given
-//     let mut world = World::default();
-//     let mut command_queue = CommandQueue::default();
-//     let mut commands = Commands::new(&mut command_queue, &world);
-//     let materials: Handle<ColorMaterial> = Handle::weak(HandleId::random::<ColorMaterial>());
+        // When
+        let board = Board::new_for_tests(start_x, start_y);
+        commands.insert_resource(board);
+        command_queue.apply(&mut world);
 
-//     // When
-//     // *
-//     PieceBuilder::new_dot_square_piece(&mut commands, materials, 0, 0);
-//     command_queue.apply(&mut world);
+        // Then - Check that board has correct bounds
+        let board = world.get_resource::<Board>().unwrap();
+        assert_eq!(board.min_x, start_x as f32);
+        assert_eq!(board.min_y, start_y as f32);
+        // Board is 3 rows x 5 cols, so max values should account for that
+        // Max is calculated as start + (count * SQUARE_WIDTH), not (count - 1) * SQUARE_WIDTH
+        assert_eq!(board.max_x, (start_x + 5 * SQUARE_WIDTH) as f32);
+        assert_eq!(board.max_y, (start_y + 3 * SQUARE_WIDTH) as f32);
 
-//     // Then
-//     let results = world
-//         .query_filtered::<&Transform, With<Position>>()
-//         .iter(&world)
-//         .map(|t| t.translation)
-//         .collect::<Vec<_>>();
-//     assert_eq!(results, vec![Vec3::new(0., 0., 1.),]);
-// }
-// }
+        // Check that we have correct number of positions (3 rows * 5 cols = 15)
+        assert_eq!(board.positions.len(), 15);
+    }
+}
