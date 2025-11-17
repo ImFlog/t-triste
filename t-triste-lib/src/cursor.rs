@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+/// Plugin that handles cursor tracking and mouse button state
 pub struct CursorPlugin;
 
 impl Plugin for CursorPlugin {
@@ -14,10 +15,14 @@ impl Plugin for CursorPlugin {
     }
 }
 
+/// Resource that tracks the current cursor state
 #[derive(Resource)]
 pub struct Cursor {
+    /// The current position of the cursor in screen coordinates
     pub current_pos: Vec2,
+    /// The position where the left mouse button was last pressed
     pub last_click_pos: Vec2,
+    /// Whether the left mouse button is currently pressed
     pub is_pressed: bool
 }
 

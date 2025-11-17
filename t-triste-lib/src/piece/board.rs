@@ -5,7 +5,7 @@ use crate::piece::SQUARE_WIDTH;
 
 use super::piece_builder::PieceBuilder;
 
-// Plugins
+/// Plugin that creates and renders the game board
 pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
@@ -15,25 +15,30 @@ impl Plugin for BoardPlugin {
     }
 }
 
-// Components
-
-// Marker component
+/// Marker component for entities that are part of the board
 #[derive(Component)]
 struct BoardPosition;
 
-// This represent a board. For now the size is fixed
-// * * * *
-// * * * *
-// * * * *
+/// Represents the game board where pieces can be placed.
+/// Currently a fixed 3x5 grid:
+/// ```text
+/// * * * * *
+/// * * * * *
+/// * * * * *
+/// ```
 #[derive(Resource)]
 pub struct Board {
+    /// Positions of all squares that make up the board
     pub positions: Vec<Vec3>,
+    /// Minimum X coordinate of the board (left edge)
     pub min_x: f32,
+    /// Minimum Y coordinate of the board (bottom edge)
     pub min_y: f32,
+    /// Maximum X coordinate of the board (right edge)
     pub max_x: f32,
+    /// Maximum Y coordinate of the board (top edge)
     pub max_y: f32,
-    // true if the position is filled
-    // vec[bool[]] ?
+    // TODO: Track which positions are filled - vec[bool[]] ?
 }
 
 impl Board {
