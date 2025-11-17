@@ -69,12 +69,9 @@ fn incrust_in_board(
             && t.y <= adjusted_max_y
     });
 
-    println!("BEFORE");
-    println!("{:?}", &moving_piece.positions());
     if in_board {
         moving_piece.snap();
         // TODO: we are once again iterating over the transform. This is not efficient.
         // TODO: Save the board squares that are filled.
     }
-    println!("{:?}", &moving_piece.positions());
 }
