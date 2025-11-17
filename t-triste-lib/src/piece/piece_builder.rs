@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::piece::SQUARE_WIDTH;
 
 pub struct PieceBuilder {
+    #[allow(dead_code)]
     pub positions: Vec<Vec3>,
 }
 
