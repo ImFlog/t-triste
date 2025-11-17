@@ -5,6 +5,7 @@ use crate::cursor::Cursor;
 use crate::SQUARE_WIDTH;
 
 // Components
+#[derive(Component)]
 pub struct Position;
 
 pub trait Piece {

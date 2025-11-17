@@ -27,7 +27,7 @@ impl Z {
 
         Z {
             positions,
-            color: Color::rgb(0.46, 0.98, 1.13),
+            color: Color::srgb(0.46, 0.98, 1.13),
             moving: false,
         }
     }

@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 // Start function
 fn main() {
-    App::build()
-        .add_plugin(GamePlugin)
+    App::new()
+        .add_plugins(GamePlugin)
         .run();
 }

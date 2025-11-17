@@ -10,7 +10,7 @@ mod z;
 
 extern crate t_triste_macro;
 
-use bevy::{math::vec3, prelude::*};
+use bevy::{math::vec3, prelude::*, sprite::Sprite};
 
 use crate::{
     cursor::Cursor,
@@ -25,7 +25,7 @@ pub struct PiecePlugin;
 pub struct GameState(pub Vec<Box<dyn Piece>>);
 
 impl Plugin for PiecePlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.insert_non_send_resource(GameState(vec![
             Box::new(Rectangle::new(100, 100)),
             Box::new(L::new(200, 300)),
@@ -33,11 +33,8 @@ impl Plugin for PiecePlugin {
             Box::new(Corner::new(100, 300)),
             Box::new(Square::new(300, 100)),
         ]))
-        .add_system_to_stage(CoreStage::PreUpdate, clear.system())
-        .add_system(release_piece.system())
-        .add_system(click_piece.system())
-        .add_system(move_piece.system())
-        .add_system(draw_piece.system());
+        .add_systems(PreUpdate, clear)
+        .add_systems(Update, (release_piece, click_piece, move_piece, draw_piece));
     }
 }
 
@@ -50,26 +47,27 @@ fn clear(mut commands: Commands, query: Query<Entity, With<Position>>) {
 
 fn draw_piece(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     mut game_state: NonSendMut<GameState>,
 ) {
     for piece in game_state.0.iter_mut() {
-        let material = materials.add(piece.color().into());
+        let color = piece.color();
         let positions = piece.positions();
         for position in positions.iter() {
             commands
-                .spawn_bundle(SpriteBundle {
-                    material: material.clone(),
-                    sprite: Sprite::new(Vec2::new(
-                        (SQUARE_WIDTH - 1) as f32,
-                        (SQUARE_WIDTH - 1) as f32,
-                    )),
-                    transform: Transform::from_translation(vec3(
+                .spawn((
+                    Sprite {
+                        color,
+                        custom_size: Some(Vec2::new(
+                            (SQUARE_WIDTH - 1) as f32,
+                            (SQUARE_WIDTH - 1) as f32,
+                        )),
+                        ..default()
+                    },
+                    Transform::from_translation(vec3(
                         position.x, position.y, position.z,
                     )),
-                    ..Default::default()
-                })
-                .insert(Position);
+                    Position,
+                ));
         }
     }
 }
@@ -88,7 +86,7 @@ fn move_piece(cursor: Res<Cursor>, mut game_state: NonSendMut<GameState>) {
 
 fn click_piece(
     cursor: Res<Cursor>,
-    mouse_button_input: Res<Input<MouseButton>>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut game_state: NonSendMut<GameState>,
 ) {
     if mouse_button_input.just_pressed(MouseButton::Left) {
@@ -109,7 +107,7 @@ fn click_piece(
 }
 
 fn release_piece(
-    mouse_button_input: Res<Input<MouseButton>>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut game_state: NonSendMut<GameState>,
 ) {
     if !mouse_button_input.just_released(MouseButton::Left) {

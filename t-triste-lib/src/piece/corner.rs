@@ -27,7 +27,7 @@ impl Corner {
         ));
         Corner {
             positions,
-            color: Color::rgb(0.83, 1.02, 0.18),
+            color: Color::srgb(0.83, 1.02, 0.18),
             moving: false,
         }
     }
