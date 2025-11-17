@@ -62,6 +62,11 @@ impl Board {
             max_y: (start_y + (nb_rows * SQUARE_WIDTH)) as f32,
         }
     }
+
+    #[cfg(test)]
+    pub fn new_for_tests(start_x: i32, start_y: i32) -> Self {
+        Self::new(start_x, start_y)
+    }
 }
 
 // Systems
