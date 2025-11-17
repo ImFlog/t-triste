@@ -48,29 +48,23 @@ fn clear(mut commands: Commands, query: Query<Entity, With<Position>>) {
     }
 }
 
-fn draw_piece(
-    mut commands: Commands,
-    mut game_state: NonSendMut<GameState>,
-) {
+fn draw_piece(mut commands: Commands, mut game_state: NonSendMut<GameState>) {
     for piece in game_state.0.iter_mut() {
         let color = piece.color();
         let positions = piece.positions();
         for position in positions.iter() {
-            commands
-                .spawn((
-                    Sprite {
-                        color,
-                        custom_size: Some(Vec2::new(
-                            (SQUARE_WIDTH - 1) as f32,
-                            (SQUARE_WIDTH - 1) as f32,
-                        )),
-                        ..default()
-                    },
-                    Transform::from_translation(vec3(
-                        position.x, position.y, position.z,
+            commands.spawn((
+                Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(
+                        (SQUARE_WIDTH - 1) as f32,
+                        (SQUARE_WIDTH - 1) as f32,
                     )),
-                    Position,
-                ));
+                    ..default()
+                },
+                Transform::from_translation(vec3(position.x, position.y, position.z)),
+                Position,
+            ));
         }
     }
 }
