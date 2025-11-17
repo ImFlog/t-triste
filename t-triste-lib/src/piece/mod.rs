@@ -2,7 +2,8 @@ pub mod board;
 
 mod corner;
 mod l;
-mod piece_trait;
+#[allow(clippy::module_inception)]
+mod piece;
 mod piece_builder;
 mod rectangle;
 mod square;
@@ -16,7 +17,7 @@ use crate::{
     cursor::Cursor,
     piece::{corner::Corner, l::L, rectangle::Rectangle, square::Square, z::Z},
 };
-use piece_trait::{Piece, Position};
+use piece::{Piece, Position};
 
 /// Width of each square in the puzzle pieces, measured in pixels
 pub const SQUARE_WIDTH: i32 = 50;

@@ -8,7 +8,7 @@ pub fn derive_behavior_fn(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
     let expanded = quote! {
-        impl crate::piece::piece_trait::Piece for #name {
+        impl crate::piece::Piece for #name {
             fn positions(&self) -> Vec<Vec3> {
                 self.positions.clone()
             }
