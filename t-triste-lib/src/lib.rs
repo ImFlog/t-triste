@@ -14,20 +14,20 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(Color::srgb(1., 0.90, 1.)))
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "T-Triste".to_string(),
-                resolution: (800, 600).into(),
-                present_mode: bevy::window::PresentMode::AutoVsync,
+            .add_plugins(DefaultPlugins.set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "T-Triste".to_string(),
+                    resolution: (800, 600).into(),
+                    present_mode: bevy::window::PresentMode::AutoVsync,
+                    ..default()
+                }),
                 ..default()
-            }),
-            ..default()
-        }))
-        .add_systems(Startup, setup_camera)
-        .add_plugins(cursor::CursorPlugin)
-        .add_plugins(board::BoardPlugin)
-        .add_plugins(piece::PiecePlugin)
-        .add_systems(Update, incrust_in_board);
+            }))
+            .add_systems(Startup, setup_camera)
+            .add_plugins(cursor::CursorPlugin)
+            .add_plugins(board::BoardPlugin)
+            .add_plugins(piece::PiecePlugin)
+            .add_systems(Update, incrust_in_board);
     }
 }
 
