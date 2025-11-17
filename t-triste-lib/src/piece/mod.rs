@@ -18,10 +18,13 @@ use crate::{
 };
 use piece::{Piece, Position};
 
+/// Width of each square in the puzzle pieces, measured in pixels
 pub const SQUARE_WIDTH: i32 = 50;
 
-// Plugins
+/// Plugin that manages piece spawning, movement, rotation, and rendering
 pub struct PiecePlugin;
+
+/// Resource containing all game pieces currently in play
 pub struct GameState(pub Vec<Box<dyn Piece>>);
 
 impl Plugin for PiecePlugin {
