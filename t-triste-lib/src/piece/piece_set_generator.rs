@@ -1,102 +1,109 @@
-use bevy::math::Vec3;
 use std::collections::HashSet;
 
-/// Represents the shape of a piece as relative grid positions
-/// Each position is (row_offset, col_offset) from the piece's anchor point
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PieceShape {
-    pub offsets: Vec<(i32, i32)>,
+use super::{corner::Corner, l::L, rectangle::Rectangle, square::Square, z::Z, SQUARE_WIDTH};
+use super::piece::Piece;
+
+/// Represents the type of piece to place on the board
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PieceType {
+    Square,
+    Rectangle,
+    L,
+    Z,
+    Corner,
 }
 
-impl PieceShape {
-    /// Create a new piece shape from relative offsets
-    pub fn new(offsets: Vec<(i32, i32)>) -> Self {
-        Self { offsets }
-    }
-
-    /// Single square (1x1)
-    pub fn square() -> Self {
-        Self::new(vec![(0, 0)])
-    }
-
-    /// Vertical rectangle (3x1)
-    pub fn vertical_rectangle() -> Self {
-        Self::new(vec![(0, 0), (1, 0), (2, 0)])
-    }
-
-    /// Horizontal rectangle (1x3)
-    pub fn horizontal_rectangle() -> Self {
-        Self::new(vec![(0, 0), (0, 1), (0, 2)])
-    }
-
-    /// L-shape (vertical variant)
-    pub fn l_shape() -> Self {
-        Self::new(vec![(0, 0), (1, 0), (2, 0), (2, 1)])
-    }
-
-    /// L-shape (horizontal variant)
-    pub fn l_shape_horizontal() -> Self {
-        Self::new(vec![(0, 0), (0, 1), (0, 2), (1, 0)])
-    }
-
-    /// Z-shape (horizontal)
-    pub fn z_shape() -> Self {
-        Self::new(vec![(0, 0), (0, 1), (1, 1), (1, 2)])
-    }
-
-    /// Corner shape (L with 3 squares)
-    pub fn corner() -> Self {
-        Self::new(vec![(0, 0), (0, 1), (1, 0)])
-    }
-
-    /// Get all available piece shapes
-    pub fn all_shapes() -> Vec<Self> {
+impl PieceType {
+    /// Get all available piece types
+    pub fn all_types() -> Vec<Self> {
         vec![
-            Self::square(),
-            Self::vertical_rectangle(),
-            Self::horizontal_rectangle(),
-            Self::l_shape(),
-            Self::l_shape_horizontal(),
-            Self::z_shape(),
-            Self::corner(),
+            Self::Square,
+            Self::Rectangle,
+            Self::L,
+            Self::Z,
+            Self::Corner,
         ]
+    }
+
+    /// Get the shape of this piece as relative grid offsets (row, col) from the anchor point
+    /// Based on the test comments in piece_builder.rs
+    pub fn shape_offsets(&self) -> Vec<(i32, i32)> {
+        match self {
+            // Single square: *
+            Self::Square => vec![(0, 0)],
+
+            // Vertical rectangle (3 squares):
+            // *
+            // *
+            // *
+            Self::Rectangle => vec![(0, 0), (1, 0), (2, 0)],
+
+            // L-shape (4 squares):
+            // *
+            // *
+            // * *
+            Self::L => vec![(0, 0), (1, 0), (2, 0), (2, 1)],
+
+            // Z-shape (4 squares):
+            // * *
+            //   * *
+            Self::Z => vec![(0, 0), (0, 1), (1, 1), (1, 2)],
+
+            // Corner (3 squares):
+            // *
+            // * *
+            Self::Corner => vec![(0, 0), (1, 0), (1, 1)],
+        }
     }
 
     /// Get the number of squares this piece occupies
     pub fn size(&self) -> usize {
-        self.offsets.len()
+        self.shape_offsets().len()
+    }
+
+    /// Create an instance of this piece type at the given pixel position
+    pub fn instantiate(&self, pixel_x: i32, pixel_y: i32) -> Box<dyn Piece> {
+        match self {
+            Self::Square => Box::new(Square::new(pixel_x, pixel_y)),
+            Self::Rectangle => Box::new(Rectangle::new(pixel_x, pixel_y)),
+            Self::L => Box::new(L::new(pixel_x, pixel_y)),
+            Self::Z => Box::new(Z::new(pixel_x, pixel_y)),
+            Self::Corner => Box::new(Corner::new(pixel_x, pixel_y)),
+        }
     }
 }
 
-/// Represents a placed piece on the board
+/// Represents a placed piece on the board at a specific grid position
 #[derive(Debug, Clone, PartialEq)]
 pub struct PlacedPiece {
-    pub shape: PieceShape,
-    pub row: i32,
-    pub col: i32,
+    pub piece_type: PieceType,
+    pub grid_row: i32,
+    pub grid_col: i32,
 }
 
 impl PlacedPiece {
     /// Get all grid positions occupied by this piece
     pub fn occupied_positions(&self) -> Vec<(i32, i32)> {
-        self.shape
-            .offsets
+        self.piece_type
+            .shape_offsets()
             .iter()
-            .map(|(row_offset, col_offset)| (self.row + row_offset, self.col + col_offset))
+            .map(|(row_offset, col_offset)| {
+                (self.grid_row + row_offset, self.grid_col + col_offset)
+            })
             .collect()
     }
 
-    /// Convert grid positions to pixel coordinates (Vec3)
-    /// Based on the board's position and SQUARE_WIDTH constant
-    pub fn to_pixel_positions(&self, board_start_x: f32, board_start_y: f32, square_width: f32) -> Vec<Vec3> {
-        self.occupied_positions()
-            .iter()
-            .map(|(row, col)| {
-                let x = board_start_x + (*col as f32 * square_width);
-                let y = board_start_y + (*row as f32 * square_width);
-                Vec3::new(x, y, 0.0)
-            })
-            .collect()
+    /// Convert grid position to pixel coordinates for the piece anchor point
+    pub fn to_pixel_position(&self, board_start_x: i32, board_start_y: i32) -> (i32, i32) {
+        let pixel_x = board_start_x + (self.grid_col * SQUARE_WIDTH);
+        let pixel_y = board_start_y + (self.grid_row * SQUARE_WIDTH);
+        (pixel_x, pixel_y)
+    }
+
+    /// Create an instance of the actual piece at the correct pixel position
+    pub fn instantiate(&self, board_start_x: i32, board_start_y: i32) -> Box<dyn Piece> {
+        let (pixel_x, pixel_y) = self.to_pixel_position(board_start_x, board_start_y);
+        self.piece_type.instantiate(pixel_x, pixel_y)
     }
 }
 
@@ -185,9 +192,9 @@ impl BoardState {
 pub fn generate_piece_set(rows: usize, cols: usize) -> Option<Vec<PlacedPiece>> {
     let mut board = BoardState::new(rows, cols);
     let mut pieces = Vec::new();
-    let shapes = PieceShape::all_shapes();
+    let piece_types = PieceType::all_types();
 
-    if backtrack(&mut board, &mut pieces, &shapes) {
+    if backtrack(&mut board, &mut pieces, &piece_types) {
         Some(pieces)
     } else {
         None
@@ -195,7 +202,11 @@ pub fn generate_piece_set(rows: usize, cols: usize) -> Option<Vec<PlacedPiece>> 
 }
 
 /// Backtracking helper function
-fn backtrack(board: &mut BoardState, pieces: &mut Vec<PlacedPiece>, shapes: &[PieceShape]) -> bool {
+fn backtrack(
+    board: &mut BoardState,
+    pieces: &mut Vec<PlacedPiece>,
+    piece_types: &[PieceType],
+) -> bool {
     // Base case: board is complete
     if board.is_complete() {
         return true;
@@ -207,40 +218,36 @@ fn backtrack(board: &mut BoardState, pieces: &mut Vec<PlacedPiece>, shapes: &[Pi
         None => return false,
     };
 
-    // Try each shape
-    for shape in shapes {
-        // Try placing the shape at positions that would cover the empty square
+    // Try each piece type
+    for &piece_type in piece_types {
+        let offsets = piece_type.shape_offsets();
+
+        // Try placing the piece at positions that would cover the empty square
         // We try different anchor positions relative to the empty square
-        for offset_row in 0..shape.offsets.len() as i32 {
-            for offset_col in 0..shape.offsets.iter().map(|(_, c)| c).max().unwrap_or(&0) + 1 {
-                let anchor_row = start_row - offset_row;
-                let anchor_col = start_col - offset_col;
+        for &(offset_row, offset_col) in &offsets {
+            let anchor_row = start_row - offset_row;
+            let anchor_col = start_col - offset_col;
 
-                let piece = PlacedPiece {
-                    shape: shape.clone(),
-                    row: anchor_row,
-                    col: anchor_col,
-                };
+            let piece = PlacedPiece {
+                piece_type,
+                grid_row: anchor_row,
+                grid_col: anchor_col,
+            };
 
-                // Check if we can place this piece
-                if board.can_place_piece(&piece) {
-                    // Check if this piece actually covers the target empty square
-                    let positions = piece.occupied_positions();
-                    if positions.contains(&(start_row, start_col)) {
-                        // Place the piece
-                        board.place_piece(&piece);
-                        pieces.push(piece.clone());
+            // Check if we can place this piece
+            if board.can_place_piece(&piece) {
+                // Place the piece
+                board.place_piece(&piece);
+                pieces.push(piece.clone());
 
-                        // Recurse
-                        if backtrack(board, pieces, shapes) {
-                            return true;
-                        }
-
-                        // Backtrack
-                        board.remove_piece(&piece);
-                        pieces.pop();
-                    }
+                // Recurse
+                if backtrack(board, pieces, piece_types) {
+                    return true;
                 }
+
+                // Backtrack
+                board.remove_piece(&piece);
+                pieces.pop();
             }
         }
     }
@@ -248,38 +255,47 @@ fn backtrack(board: &mut BoardState, pieces: &mut Vec<PlacedPiece>, shapes: &[Pi
     false
 }
 
-/// Generate a deterministic piece set for testing (simple horizontal strips)
-pub fn generate_simple_piece_set(rows: usize, cols: usize) -> Vec<PlacedPiece> {
-    let mut pieces = Vec::new();
-
-    // Fill the board with horizontal rectangles (length = cols)
-    for row in 0..rows as i32 {
-        // Create a horizontal piece for this row
-        let offsets: Vec<(i32, i32)> = (0..cols as i32).map(|c| (0, c)).collect();
-        let shape = PieceShape::new(offsets);
-
-        pieces.push(PlacedPiece {
-            shape,
-            row,
-            col: 0,
-        });
-    }
-
-    pieces
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_piece_shape_sizes() {
-        assert_eq!(PieceShape::square().size(), 1);
-        assert_eq!(PieceShape::vertical_rectangle().size(), 3);
-        assert_eq!(PieceShape::horizontal_rectangle().size(), 3);
-        assert_eq!(PieceShape::l_shape().size(), 4);
-        assert_eq!(PieceShape::z_shape().size(), 4);
-        assert_eq!(PieceShape::corner().size(), 3);
+    fn test_piece_type_sizes() {
+        assert_eq!(PieceType::Square.size(), 1);
+        assert_eq!(PieceType::Rectangle.size(), 3);
+        assert_eq!(PieceType::L.size(), 4);
+        assert_eq!(PieceType::Z.size(), 4);
+        assert_eq!(PieceType::Corner.size(), 3);
+    }
+
+    #[test]
+    fn test_piece_type_shapes() {
+        // Square: *
+        assert_eq!(PieceType::Square.shape_offsets(), vec![(0, 0)]);
+
+        // Rectangle vertical (3 squares)
+        assert_eq!(
+            PieceType::Rectangle.shape_offsets(),
+            vec![(0, 0), (1, 0), (2, 0)]
+        );
+
+        // L-shape (4 squares)
+        assert_eq!(
+            PieceType::L.shape_offsets(),
+            vec![(0, 0), (1, 0), (2, 0), (2, 1)]
+        );
+
+        // Z-shape (4 squares)
+        assert_eq!(
+            PieceType::Z.shape_offsets(),
+            vec![(0, 0), (0, 1), (1, 1), (1, 2)]
+        );
+
+        // Corner (3 squares)
+        assert_eq!(
+            PieceType::Corner.shape_offsets(),
+            vec![(0, 0), (1, 0), (1, 1)]
+        );
     }
 
     #[test]
@@ -302,9 +318,9 @@ mod tests {
     fn test_board_state_place_and_remove() {
         let mut board = BoardState::new(3, 5);
         let piece = PlacedPiece {
-            shape: PieceShape::square(),
-            row: 0,
-            col: 0,
+            piece_type: PieceType::Square,
+            grid_row: 0,
+            grid_col: 0,
         };
 
         assert!(!board.is_filled(0, 0));
@@ -323,21 +339,21 @@ mod tests {
         let mut board = BoardState::new(3, 5);
 
         let piece1 = PlacedPiece {
-            shape: PieceShape::horizontal_rectangle(),
-            row: 0,
-            col: 0,
+            piece_type: PieceType::Square,
+            grid_row: 0,
+            grid_col: 0,
         };
 
         let piece2 = PlacedPiece {
-            shape: PieceShape::horizontal_rectangle(),
-            row: 0,
-            col: 1,
+            piece_type: PieceType::Square,
+            grid_row: 0,
+            grid_col: 0,
         };
 
         assert!(board.can_place_piece(&piece1));
         board.place_piece(&piece1);
 
-        // piece2 overlaps with piece1
+        // piece2 overlaps with piece1 (same position)
         assert!(!board.can_place_piece(&piece2));
     }
 
@@ -345,11 +361,11 @@ mod tests {
     fn test_can_place_piece_out_of_bounds() {
         let board = BoardState::new(3, 5);
 
-        // Piece goes out of bounds (col 4 + offset 2 = col 6, but max is 4)
+        // Z piece at (0, 4) would extend to col 6, which is out of bounds
         let piece = PlacedPiece {
-            shape: PieceShape::horizontal_rectangle(),
-            row: 0,
-            col: 4,
+            piece_type: PieceType::Z,
+            grid_row: 0,
+            grid_col: 4,
         };
 
         assert!(!board.can_place_piece(&piece));
@@ -358,16 +374,16 @@ mod tests {
     #[test]
     fn test_occupied_positions() {
         let piece = PlacedPiece {
-            shape: PieceShape::horizontal_rectangle(),
-            row: 1,
-            col: 2,
+            piece_type: PieceType::Corner,
+            grid_row: 1,
+            grid_col: 2,
         };
 
         let positions = piece.occupied_positions();
         assert_eq!(positions.len(), 3);
-        assert!(positions.contains(&(1, 2)));
-        assert!(positions.contains(&(1, 3)));
-        assert!(positions.contains(&(1, 4)));
+        assert!(positions.contains(&(1, 2))); // anchor
+        assert!(positions.contains(&(2, 2))); // down
+        assert!(positions.contains(&(2, 3))); // down-right
     }
 
     #[test]
@@ -402,20 +418,28 @@ mod tests {
     }
 
     #[test]
-    fn test_generate_simple_piece_set() {
-        let pieces = generate_simple_piece_set(3, 5);
+    fn test_to_pixel_position() {
+        let piece = PlacedPiece {
+            piece_type: PieceType::Square,
+            grid_row: 0,
+            grid_col: 0,
+        };
 
-        // Should generate 3 pieces (one per row)
-        assert_eq!(pieces.len(), 3);
+        let (pixel_x, pixel_y) = piece.to_pixel_position(300, 250);
+        assert_eq!(pixel_x, 300);
+        assert_eq!(pixel_y, 250);
 
-        // Verify all pieces together fill the board
-        let mut board = BoardState::new(3, 5);
-        for piece in &pieces {
-            assert!(board.can_place_piece(piece));
-            board.place_piece(piece);
-        }
+        let piece2 = PlacedPiece {
+            piece_type: PieceType::Square,
+            grid_row: 2,
+            grid_col: 3,
+        };
 
-        assert!(board.is_complete());
+        let (pixel_x, pixel_y) = piece2.to_pixel_position(300, 250);
+        // row 2: 250 + (2 * 50) = 350
+        // col 3: 300 + (3 * 50) = 450
+        assert_eq!(pixel_x, 450);
+        assert_eq!(pixel_y, 350);
     }
 
     #[test]
@@ -427,7 +451,11 @@ mod tests {
 
         for piece in &pieces {
             // Each piece should be placeable
-            assert!(board.can_place_piece(piece), "Piece should be placeable: {:?}", piece);
+            assert!(
+                board.can_place_piece(piece),
+                "Piece should be placeable: {:?}",
+                piece
+            );
             board.place_piece(piece);
         }
 
@@ -480,19 +508,23 @@ mod tests {
     }
 
     #[test]
-    fn test_to_pixel_positions() {
-        let piece = PlacedPiece {
-            shape: PieceShape::horizontal_rectangle(),
-            row: 0,
-            col: 0,
-        };
+    fn test_instantiate_pieces() {
+        let pieces = generate_piece_set(3, 5).expect("Should find a solution");
 
-        let pixel_positions = piece.to_pixel_positions(100.0, 200.0, 50.0);
+        // Test that we can instantiate all pieces
+        for piece in &pieces {
+            let instance = piece.instantiate(300, 250);
 
-        assert_eq!(pixel_positions.len(), 3);
-        assert_eq!(pixel_positions[0], Vec3::new(100.0, 200.0, 0.0));
-        assert_eq!(pixel_positions[1], Vec3::new(150.0, 200.0, 0.0));
-        assert_eq!(pixel_positions[2], Vec3::new(200.0, 200.0, 0.0));
+            // Verify the piece has the expected number of positions
+            let positions = instance.positions();
+            assert_eq!(
+                positions.len(),
+                piece.piece_type.size(),
+                "Piece {:?} should have {} positions",
+                piece.piece_type,
+                piece.piece_type.size()
+            );
+        }
     }
 
     #[test]
