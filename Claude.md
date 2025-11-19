@@ -140,6 +140,49 @@ Before committing code, ensure:
 cargo fmt --all && cargo clippy --all-targets --all-features -- -D warnings && cargo test --all-features
 ```
 
+## Git Commit Standards
+
+### Conventional Commits
+
+This repository follows the [Conventional Commits](https://www.conventionalcommits.org/) format for all commit messages.
+
+**Format:**
+```
+<type>(<optional scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Common types:**
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that don't affect code meaning (white-space, formatting, etc)
+- `refactor`: Code change that neither fixes a bug nor adds a feature
+- `perf`: Performance improvements
+- `test`: Adding missing tests or correcting existing tests
+- `build`: Changes to build system or dependencies
+- `ci`: Changes to CI configuration files and scripts
+- `chore`: Other changes that don't modify src or test files
+
+**Examples:**
+```
+feat: add new piece rotation system
+fix: correct collision detection in grid
+docs: update README with installation instructions
+test: add unit tests for piece builders
+refactor: simplify cursor movement logic
+```
+
+**Best practices:**
+- Use lowercase for the type and description
+- Keep the subject line (first line) under 72 characters
+- Use the imperative mood ("add" not "added" or "adds")
+- Don't end the subject line with a period
+- Separate subject from body with a blank line (if body is needed)
+
 ## Common Development Commands
 
 ```bash
