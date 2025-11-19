@@ -12,3 +12,8 @@ Cargo.lock
 
 .idea
 .DS_Store
+
+# Coverage reports
+lcov.info
+*.profraw
+*.profdata
