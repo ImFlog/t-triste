@@ -17,9 +17,23 @@ features = [
     "bevy_render",
     "bevy_sprite",
     "bevy_winit",
-    "x11",
     "bevy_asset",
     "bevy_scene",
     "bevy_core_pipeline",
     "png"
 ]
+
+[target.'cfg(target_os = "linux")'.dependencies.bevy]
+version = "0.17"
+default-features = false
+features = ["x11"]
+
+[target.'cfg(target_os = "android")'.dependencies.bevy]
+version = "0.17"
+default-features = false
+features = ["android-game-activity"]
+
+[target.'cfg(target_os = "ios")'.dependencies.bevy]
+version = "0.17"
+default-features = false
+features = []

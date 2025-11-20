@@ -4,6 +4,17 @@
 
 Un puzzle game compétitif (BATTLE ROYALE ? NON). Pour lancer le jeu: `cargo run --features bevy/dynamic` (la feature est optionnelle)
 
+## Mobile Builds
+
+T-Triste supports iOS and Android platforms! See [MOBILE_BUILD.md](MOBILE_BUILD.md) for detailed instructions.
+
+Quick start:
+```bash
+make setup-mobile    # Install mobile build tools
+make android-build   # Build for Android
+make ios-build       # Build for iOS (macOS only)
+```
+
 ## Résumé des streams
 * [stream_1](readmes/stream_1.md)
 * [stream_2](readmes/stream_2.md)
